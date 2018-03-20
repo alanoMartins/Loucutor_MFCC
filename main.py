@@ -57,6 +57,8 @@ if __name__ == '__main__':
     for gauss in n_gauss_test:
         classifier = GMM(n_gaussians=gauss)
         classifier.fit(X_train)
+        #classifier.load_models()
+        #classifier.persiste_model()
         y_pred = classifier.predict(X_test)
         predicts.append(y_pred)
 

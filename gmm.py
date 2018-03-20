@@ -1,6 +1,7 @@
 from sklearn import mixture
 from sklearn.externals import joblib
 import numpy as np
+import os.path
 
 class GMM:
 
@@ -23,9 +24,14 @@ class GMM:
         for idx in range(0, len(self.models)):
             joblib.dump(self.models[idx], "models/gaussians{}/model_{}.pkl".format(self.gaussians, idx))
 
-    def load_models(self, num_models=41):
-        for label in range(0, num_models):
-            yield joblib.load("models/model_{}.pkl".format(label))
+    def load_models(self):
+        path = "models/gaussians{}/".format(self.gaussians)
+        files = next(os.walk(path))[2]
+        files = list(files)
+        self.models = []
+        for label in files:
+            model = joblib.load(path + label)
+            self.models.append(model)
 
     def predict(self, X_test):
         predicts = []
