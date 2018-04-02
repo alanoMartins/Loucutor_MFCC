@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import accuracy_score, f1_score
 from gmm import GMM
+from gmm_ubm import GMM_UBM
 import matplotlib.pyplot as plt
 
 
@@ -30,6 +31,7 @@ if __name__ == '__main__':
     train_dataset = util.build_train_dataset()
     test_dataset = util.build_test_dataset()
 
+    #traind_df = pd.read_json('dataset/train.json')
     traind_df = pd.DataFrame(train_dataset)
 
     traind_df.to_json("dataset/train.json")
@@ -38,6 +40,7 @@ if __name__ == '__main__':
     y_train = traind_df.iloc[:, 0].values
     X_train = traind_df.iloc[:, 1:].values
 
+    #test_df = pd.read_json('dataset/test.json')
     test_df = pd.DataFrame(test_dataset)
 
     traind_df.to_json("dataset/test.json")
@@ -52,16 +55,16 @@ if __name__ == '__main__':
     print("Creating models")
 
     n_gauss_test = [2, 4, 6, 8, 12, 16, 20,24, 28, 32, 36, 40]
+    #n_gauss_test = [8, 16]
 
     predicts = []
     for gauss in n_gauss_test:
-        classifier = GMM(n_gaussians=gauss)
+        classifier = GMM_UBM(n_gaussians=gauss)
         classifier.fit(X_train)
         #classifier.load_models()
         #classifier.persiste_model()
-        y_pred = classifier.predict(X_test)
+        y_pred, y_pred_impostor = classifier.predict(X_test)
         predicts.append(y_pred)
-
 
     print("Generating metrics")
 
@@ -71,6 +74,8 @@ if __name__ == '__main__':
     #f1_scores = map(lambda x: f1_score(y_test, x), predicts)
     #f1_scores = list(f1_scores)
 
+    print(y_test)
+    print(predicts)
 
     print("Plot results")
 

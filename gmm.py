@@ -11,14 +11,31 @@ class GMM:
 
     def fit(self, X_train):
         models = []
+        impostor = self.create_impostor(X_train)
+        X_train.append(list(impostor))
+
         for idx in range(0, len(X_train)):
-            model = mixture.GMM(n_components=self.gaussians, covariance_type='diag')
+            model = mixture.BayesianGaussianMixture(n_components=self.gaussians, covariance_type='diag', init_params="kmeans")
             print("Train model")
             model.fit(X_train[idx])
             print("Model trained")
             self.models.append(model)
             models.append(model)
         return models
+
+
+    def create_impostor(self, X_train):
+        data_flat = []
+        for data in X_train:
+            data_flat.append(np.array(data).flatten())
+        sizes = [len(d) for d in data_flat]
+        min_size = np.min(list(sizes))
+        data_flat = [d[0:min_size] for d in data_flat]
+        s = np.sum(data_flat, axis=0, keepdims=True)
+        mean = s / len(X_train)
+        couter = mean.shape[1] / 13
+        mean = mean.reshape(int(couter), 13)
+        return mean
 
     def persiste_model(self):
         for idx in range(0, len(self.models)):
@@ -40,7 +57,7 @@ class GMM:
             best_prob = float("-inf")
             best_class = -1
             for midx in range(0, len(self.models)):
-                prob = self.models[midx].score_samples(test_dataset)[0]
+                prob = self.models[midx].score(test_dataset)
                 prob = np.sum(prob)
                 if prob > best_prob:
                     best_prob = prob
